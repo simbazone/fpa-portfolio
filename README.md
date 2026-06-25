@@ -36,8 +36,10 @@ Claude Desktop (Cowork) · Claude API · Excel/openpyxl · Vanilla HTML/JS · Gi
 eBay SEC filings (10-K FY2022–FY2025), Q1 2026 Earnings Deck, 2026 Proxy Statement,
 eBay Investor Relations historical tables. All public disclosures.
 
-**Disclaimer:** Independent portfolio project built from public information.
+**Disclaimer:** 
+Independent portfolio project built from public information.
 GMX-level financials are modeled estimates — eBay does not disclose GMX as a 
 separate segment. Not affiliated with or endorsed by eBay Inc. All data sourced exclusively from publicly available SEC filings and 
 eBay investor relations disclosures. No proprietary or non-public information was used.
+
 ---
