@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HubSpot (HUBS) — SaaS Strategic Finance Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:       #0D1B2A;
+    --panel:    #1A2F45;
+    --panel2:   #152638;
+    --border:   #1F3A52;
+    --orange:   #FF5C35;
+    --green:    #7EC8A4;
+    --blue:     #4A9ECD;
+    --amber:    #FFB347;
+    --red:      #E05C5C;
+    --text:     #F0F4F8;
+    --muted:    #8BA5C0;
+    --dim:      #4A6580;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 28px 40px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-title-block { display: flex; flex-direction: column; gap: 4px; }
+  .ticker-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .ticker-dot {
+    width: 6px; height: 6px;
+    background: var(--orange);
+    border-radius: 50%;
+  }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  .header-meta {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .header-kpis {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .header-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 28px 16px;
+    border-left: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .header-kpi:first-child { border-left: none; padding-left: 0; }
+  .header-kpi-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .header-kpi-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .header-kpi-delta {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+  .flat { color: var(--muted); }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 40px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    padding: 14px 22px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--orange);
+  }
+  .tab-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    margin-right: 6px;
+  }
+
+  /* ── CONTENT ── */
+  .content { padding: 32px 40px 60px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  .mb-20 { margin-bottom: 20px; }
+  .mt-20 { margin-top: 20px; }
+  .span-full { grid-column: 1 / -1; }
+
+  /* ── PANELS ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .panel-sm { padding: 18px 20px; }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .panel-subtitle {
+    font-size: 12px;
+    color: var(--dim);
+    margin-bottom: 18px;
+    line-height: 1.4;
+  }
+  .panel-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .section-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+  .kpi-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .kpi-card-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .kpi-card-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .kpi-card-sub span { font-weight: 600; }
+  .kpi-highlight { border-top: 2px solid var(--orange); }
+  .kpi-green { border-top: 2px solid var(--green); }
+  .kpi-blue { border-top: 2px solid var(--blue); }
+  .kpi-amber { border-top: 2px solid var(--amber); }
+
+  /* ── CHART WRAPPERS ── */
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap-tall { height: 320px; }
+  .chart-wrap-med { height: 260px; }
+  .chart-wrap-sm { height: 200px; }
+
+  /* ── INSIGHT STRIP ── */
+  .insight-strip {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--orange);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .insight-strip strong { color: var(--text); font-weight: 500; }
+  .insight-strip.green-accent { border-left-color: var(--green); }
+  .insight-strip.blue-accent { border-left-color: var(--blue); }
+  .insight-strip.amber-accent { border-left-color: var(--amber); }
+
+  /* ── WATERFALL ── */
+  .waterfall-wrap { height: 340px; position: relative; }
+
+  /* ── SCENARIO TOGGLE ── */
+  .scenario-toggle {
+    display: inline-flex;
+    gap: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px;
+    margin-bottom: 24px;
+  }
+  .scenario-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .scenario-btn.bear.active  { background: var(--red); color: #fff; }
+  .scenario-btn.base.active  { background: var(--blue); color: #fff; }
+  .scenario-btn.bull.active  { background: var(--green); color: #0D1B2A; }
+  .scenario-btn:hover { color: var(--text); }
+
+  /* ── SCENARIO CARDS ── */
+  .scenario-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .scenario-metric {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    transition: all 0.3s;
+  }
+  .scenario-metric-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .scenario-metric-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .scenario-metric-note { font-size: 11px; color: var(--dim); }
+
+  /* ── SEGMENT BARS ── */
+  .seg-bar-wrap { margin-bottom: 12px; }
+  .seg-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .seg-bar-label span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); }
+  .seg-bar-track {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+  .seg-bar-smb { height: 100%; background: var(--blue); border-radius: 4px 0 0 4px; transition: width 0.6s ease; }
+  .seg-bar-up  { height: 100%; background: var(--orange); border-radius: 0 4px 4px 0; transition: width 0.6s ease; }
+
+  /* ── TABLE ── */
+  .fin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .fin-table th {
+    text-align: right;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fin-table th:first-child { text-align: left; }
+  .fin-table td {
+    padding: 7px 10px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .fin-table td:first-child {
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .fin-table tr:last-child td { border-bottom: none; }
+  .fin-table .row-highlight td { color: var(--green); }
+  .fin-table .row-dim td { color: var(--dim); font-size: 11px; }
+  .fin-table .td-green { color: var(--green) !important; }
+  .fin-table .td-red { color: var(--red) !important; }
+  .fin-table .td-orange { color: var(--orange) !important; }
+  .fin-table .section-row td {
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 10px 10px 4px;
+  }
+
+  /* ── UNIT ECON COMPARISON ── */
+  .metric-compare {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .metric-compare-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .metric-compare-label {
+    font-size: 11px;
+    color: var(--muted);
+    width: 130px;
+    flex-shrink: 0;
+  }
+  .metric-compare-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .mc-bar-row { display: flex; align-items: center; gap: 8px; }
+  .mc-bar-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    width: 48px;
+    color: var(--dim);
+    flex-shrink: 0;
+  }
+  .mc-bar-track { flex: 1; height: 10px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .mc-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  .mc-bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    width: 48px;
+    text-align: right;
+  }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer {
+    margin-top: 40px;
+    padding: 14px 20px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: var(--muted); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .header { padding: 20px; }
+    .content { padding: 20px; }
+    .tabs-bar { padding: 0 20px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3, .grid-1-2, .grid-2-1 { grid-template-columns: 1fr; }
+    .scenario-metric-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-title-block">
+      <div class="ticker-badge"><div class="ticker-dot"></div>NYSE: HUBS &nbsp;|&nbsp; SaaS Strategic Finance Dashboard</div>
+      <h1>HubSpot Inc. — Finance System</h1>
+      <div class="header-meta">FY2021A–FY2025A Actuals &nbsp;·&nbsp; FY2026E–FY2027E Forecast &nbsp;·&nbsp; Sources: 10-K FY2024, Q4/FY2025 Earnings PR (Feb 11 2026) &nbsp;·&nbsp; Darden MBA 2026 Portfolio</div>
+    </div>
+  </div>
+  <div class="header-kpis">
+    <div class="header-kpi">
+      <div class="header-kpi-label">FY2025 Revenue</div>
+      <div class="header-kpi-value">$3.13B</div>
+      <div class="header-kpi-delta up">+19.2% YoY</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">Non-GAAP Op Margin</div>
+      <div class="header-kpi-value">18.6%</div>
+      <div class="header-kpi-delta up">+110bps YoY</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">FCF Margin</div>
+      <div class="header-kpi-value">19.0%</div>
+      <div class="header-kpi-delta up">+0.4pp YoY</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">NRR</div>
+      <div class="header-kpi-value">~104.5%</div>
+      <div class="header-kpi-delta up">+2.5pp vs FY24</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">Customers (EOP)</div>
+      <div class="header-kpi-value">288,706</div>
+      <div class="header-kpi-delta up">+16.4% YoY</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">FY2026E Guide</div>
+      <div class="header-kpi-value">$3.70B</div>
+      <div class="header-kpi-delta flat">+18% · 20% Op Margin</div>
+    </div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">Rule of 40</div>
+      <div class="header-kpi-value">~38%</div>
+      <div class="header-kpi-delta amber">Approaching 40%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TABS ── -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('overview', this)"><span class="tab-number">01</span>Overview</button>
+  <button class="tab-btn" onclick="switchTab('arr', this)"><span class="tab-number">02</span>ARR Engine</button>
+  <button class="tab-btn" onclick="switchTab('unitec', this)"><span class="tab-number">03</span>Unit Economics</button>
+  <button class="tab-btn" onclick="switchTab('scenarios', this)"><span class="tab-number">04</span>Scenarios</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 1 — OVERVIEW
+══════════════════════════════════════════ -->
+<div class="content">
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-highlight">
+      <div class="kpi-card-label">ARR Proxy (FY2025A)</div>
+      <div class="kpi-card-value">$3.06B</div>
+      <div class="kpi-card-sub"><span class="up">+19.2%</span> · Sub Rev proxy</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-card-label">Gross Margin</div>
+      <div class="kpi-card-value">83.8%</div>
+      <div class="kpi-card-sub"><span class="up">+6.1pp</span> since FY2021</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-card-label">Non-GAAP FCF</div>
+      <div class="kpi-card-value">$595M</div>
+      <div class="kpi-card-sub"><span class="up">+$107M</span> vs FY2024</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-card-label">GAAP Net Income</div>
+      <div class="kpi-card-value">$45.9M</div>
+      <div class="kpi-card-sub"><span class="up">First GAAP profit</span> in company history</div>
+    </div>
+  </div>
+
+  <div class="grid-2-1 mb-20">
+    <div class="panel">
+      <div class="panel-title">Revenue by Type &amp; Gross Margin</div>
+      <div class="panel-subtitle">FY2021A–FY2025A · $thousands</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="revChart"></canvas></div>
+      <div class="insight-strip">
+        <strong>Dual inflection FY2025:</strong> First year since FY2020 with both subscription revenue acceleration (+19.2%) and gross margin expansion to 83.8%. Professional services mix fell to 2.1% of revenue — structurally, HUBS is now a pure-play subscription business.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Margin Compression &amp; Recovery</div>
+      <div class="panel-subtitle">Non-GAAP Op Margin vs FCF Margin</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="marginChart"></canvas></div>
+      <div class="insight-strip green-accent">
+        <strong>Operating leverage emerging:</strong> Non-GAAP op margin expanded 110bps to 18.6% in FY2025. FY2026E guidance of 20% implies the S&amp;M leverage thesis is intact despite upmarket GTM investment.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="panel panel-sm">
+      <div class="panel-title">Revenue Growth Rate</div>
+      <div class="panel-subtitle">YoY % — deceleration pattern</div>
+      <div class="chart-wrap chart-wrap-med"><canvas id="growthChart"></canvas></div>
+    </div>
+    <div class="panel panel-sm">
+      <div class="panel-title">Customer &amp; ASRPC Trends</div>
+      <div class="panel-subtitle">Customers (k) vs ASRPC ($)</div>
+      <div class="chart-wrap chart-wrap-med"><canvas id="custChart"></canvas></div>
+    </div>
+    <div class="panel panel-sm">
+      <div class="panel-title">P&amp;L Summary</div>
+      <div class="panel-subtitle">FY2023A–FY2025A key lines ($M)</div>
+      <table class="fin-table" style="margin-top:8px">
+        <thead><tr><th>Metric</th><th>FY23A</th><th>FY24A</th><th>FY25A</th></tr></thead>
+        <tbody>
+          <tr class="section-row"><td colspan="4">Revenue</td></tr>
+          <tr><td>Total Revenue</td><td>$2,170</td><td>$2,628</td><td class="td-green">$3,131</td></tr>
+          <tr><td>Gross Margin %</td><td>84.4%</td><td>85.0%</td><td>83.8%</td></tr>
+          <tr class="section-row"><td colspan="4">Profitability</td></tr>
+          <tr><td>Non-GAAP Op Inc</td><td>$337</td><td>$460</td><td class="td-green">$582</td></tr>
+          <tr><td>Non-GAAP Margin</td><td>15.5%</td><td>17.5%</td><td class="td-green">18.6%</td></tr>
+          <tr><td>GAAP Net Income</td><td class="td-red">($165)</td><td>$5</td><td class="td-green">$46</td></tr>
+          <tr class="section-row"><td colspan="4">Cash Flow</td></tr>
+          <tr><td>Non-GAAP FCF</td><td>$293</td><td>$488</td><td class="td-green">$595</td></tr>
+          <tr><td>FCF Margin %</td><td>11.5%</td><td>18.6%</td><td class="td-green">19.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2 — ARR ENGINE
+══════════════════════════════════════════ -->
+<div id="tab-arr" class="tab-panel">
+
+  <div class="section-label">ARR Waterfall &amp; Retention Engine</div>
+
+  <div class="panel mb-20">
+    <div class="panel-title">ARR Movement Waterfall — FY2021A to FY2025A</div>
+    <div class="panel-subtitle">Starting ARR → Logo Churn → Gross Retained → Expansion → Contraction → New Logos → Ending ARR · $millions</div>
+    <div class="waterfall-wrap"><canvas id="waterfallChart"></canvas></div>
+    <div class="insight-strip">
+      <strong>The seat model in action:</strong> FY2024 was the NRR trough — contraction spiked to $138M as customers downsized during the pricing transition, while logo churn also hit 8.9%. FY2025 shows both reversing simultaneously: contraction fell to $158M on a larger base (improving rate), expansion grew to $435M, and new logo ARR held at $419M. That dual reversal is why NRR recovered from ~102% to ~104.5%. The structural logic: every new hire at a HubSpot customer automatically adds seat ARR — no sales motion required.
+    </div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="panel">
+      <div class="panel-title">NRR Recovery Trajectory</div>
+      <div class="panel-subtitle">Dollar-Based Net Revenue Retention · FY2021A–FY2025A</div>
+      <div class="chart-wrap chart-wrap-med"><canvas id="nrrChart"></canvas></div>
+      <div class="insight-strip green-accent">
+        <strong>Peak → trough → recovery:</strong> NRR peaked at ~115% (FY2021 IPO era), compressed to ~102% during SMB macro headwinds and seat model transition, and is now recovering. FY2025 at ~104.5% marks the first YoY improvement since FY2022. The seat model creates structural expansion: upmarket deals (>$10K MRR) grew +41% YoY in FY2025 and now represent ~45% of revenue.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">ARR Waterfall Detail</div>
+      <div class="panel-subtitle">Component breakdown by year · $millions</div>
+      <table class="fin-table">
+        <thead><tr><th>Component</th><th>FY22A</th><th>FY23A</th><th>FY24A</th><th>FY25A</th></tr></thead>
+        <tbody>
+          <tr class="section-row"><td colspan="5">ARR Stock Movement</td></tr>
+          <tr><td>Starting ARR</td><td>$1,355</td><td>$1,866</td><td>$2,324</td><td>$2,805</td></tr>
+          <tr><td class="td-red">  (–) Logo Churn ARR</td><td class="td-red">($92)</td><td class="td-red">($131)</td><td class="td-red">($207)</td><td class="td-red">($168)</td></tr>
+          <tr><td>  Gross Retained ARR</td><td>$1,263</td><td>$1,735</td><td>$2,117</td><td>$2,636</td></tr>
+          <tr class="section-row"><td colspan="5">Expansion / Contraction</td></tr>
+          <tr><td class="td-green">  (+) Expansion ARR</td><td class="td-green">$273</td><td class="td-green">$285</td><td class="td-green">$368</td><td class="td-green">$435</td></tr>
+          <tr><td class="td-red">  (–) Contraction ARR</td><td class="td-red">($61)</td><td class="td-red">($95)</td><td class="td-red">($138)</td><td class="td-red">($158)</td></tr>
+          <tr><td>  Net Expansion</td><td>$212</td><td>$189</td><td>$231</td><td>$277</td></tr>
+          <tr class="section-row"><td colspan="5">New Logos</td></tr>
+          <tr><td class="td-green">  (+) New Logo ARR</td><td class="td-green">$277</td><td class="td-green">$242</td><td class="td-green">$452</td><td class="td-green">$419</td></tr>
+          <tr class="row-highlight"><td>Ending ARR</td><td>$1,752</td><td>$2,167</td><td>$2,800</td><td>$3,332</td></tr>
+          <tr class="row-dim"><td>  Derived NRR</td><td>108.9%</td><td>103.1%</td><td>101.0%</td><td>103.9%</td></tr>
+          <tr class="row-dim"><td>  Disclosed NRR</td><td>110.0%</td><td>103.9%</td><td>102.0%</td><td>104.5%</td></tr>
+        </tbody>
+      </table>
+      <div class="insight-strip blue-accent" style="margin-top:14px; font-size:11px">
+        <strong>Derivation gap ~0.6pp</strong> (derived vs disclosed) is methodological: our bottom-up uses logo-weighted GRR while management reports ARR-weighted. Churning customers skew below-average ASRPC → ARR-weighted GRR is slightly higher. Gap is expected and within model tolerance.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Customer Segment Revenue Mix</div>
+      <div class="panel-subtitle">SMB vs Upmarket · FY2021A–FY2025A (est)</div>
+      <div id="segBars" style="margin-top:12px">
+        <div class="seg-bar-wrap"><div class="seg-bar-label"><span>FY2021A</span><span>SMB 65% / Upmarket 35%</span></div><div class="seg-bar-track"><div class="seg-bar-smb" style="width:65%"></div><div class="seg-bar-up" style="width:35%"></div></div></div>
+        <div class="seg-bar-wrap"><div class="seg-bar-label"><span>FY2022A</span><span>SMB 62% / Upmarket 38%</span></div><div class="seg-bar-track"><div class="seg-bar-smb" style="width:62%"></div><div class="seg-bar-up" style="width:38%"></div></div></div>
+        <div class="seg-bar-wrap"><div class="seg-bar-label"><span>FY2023A</span><span>SMB 59% / Upmarket 41%</span></div><div class="seg-bar-track"><div class="seg-bar-smb" style="width:59%"></div><div class="seg-bar-up" style="width:41%"></div></div></div>
+        <div class="seg-bar-wrap"><div class="seg-bar-label"><span>FY2024A</span><span>SMB 57% / Upmarket 43%</span></div><div class="seg-bar-track"><div class="seg-bar-smb" style="width:57%"></div><div class="seg-bar-up" style="width:43%"></div></div></div>
+        <div class="seg-bar-wrap"><div class="seg-bar-label"><span>FY2025A</span><span>SMB 55% / Upmarket 45%</span></div><div class="seg-bar-track"><div class="seg-bar-smb" style="width:55%"></div><div class="seg-bar-up" style="width:45%"></div></div></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:14px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--blue);border-radius:2px"></div>SMB (&lt;$5K MRR) · NRR ~97.5%</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--orange);border-radius:2px"></div>Upmarket (&gt;$5K MRR) · NRR ~113.5%</div>
+      </div>
+      <div class="insight-strip" style="margin-top:12px">
+        <strong>Mix shift = blended NRR tailwind:</strong> Each +1pp revenue shift from SMB → upmarket adds +0.16pp blended NRR, +$192 blended ASRPC, and -0.7pp blended logo churn. At 3pp/year pace, upmarket crosses 50% of revenue by FY2027.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">New Logo Acquisition Funnel</div>
+      <div class="panel-subtitle">PLG vs Field Sales contribution · FY2025A</div>
+      <div class="chart-wrap chart-wrap-med"><canvas id="funnelChart"></canvas></div>
+      <div class="insight-strip blue-accent">
+        <strong>PLG structural advantage:</strong> ~70% of new logos acquired via freemium at near-zero marginal S&amp;M. Field sales generates 30% of logos but at ~$65K CAC vs ~$0 PLG CAC. The blended Magic Number of 0.36x is artificially low — PLG-adjusted (field S&amp;M only) is 1.19x, which is healthy for this hybrid model.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 3 — UNIT ECONOMICS
+══════════════════════════════════════════ -->
+<div id="tab-unitec" class="tab-panel">
+
+  <div class="section-label">Unit Economics &amp; SaaS Efficiency</div>
+
+  <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr)">
+    <div class="kpi-card kpi-highlight">
+      <div class="kpi-card-label">Blended Magic Number</div>
+      <div class="kpi-card-value">0.36x</div>
+      <div class="kpi-card-sub"><span class="up">PLG-adj: 1.19x</span> field-only</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-card-label">Blended LTV:CAC</div>
+      <div class="kpi-card-value">2.36x</div>
+      <div class="kpi-card-sub">SMB <span>4.87x</span> · Upmarket <span>6.15x</span></div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-card-label">CAC Payback</div>
+      <div class="kpi-card-value">40.7mo</div>
+      <div class="kpi-card-sub">Blended · SMB <span>19.7mo</span></div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-card-label">Burn Multiple</div>
+      <div class="kpi-card-value">−1.20x</div>
+      <div class="kpi-card-sub"><span class="up">FCF positive</span> · Strong generation</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="panel">
+      <div class="panel-title">Magic Number — Blended vs PLG-Adjusted</div>
+      <div class="panel-subtitle">Net New ARR / S&amp;M spend · FY2022A–FY2025A</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="magicChart"></canvas></div>
+      <div class="insight-strip amber-accent">
+        <strong>The PLG adjustment matters.</strong> Blended Magic Number (0.36–0.68x) includes all S&amp;M — brand, digital, partner — even though ~70% of new logos require near-zero incremental spend. Adjusting to field-only S&amp;M (~30% of total) reveals 1.19–2.28x, squarely in "healthy" territory. Present both when asked; the blended number without context is misleading.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Rule of 40</div>
+      <div class="panel-subtitle">Revenue Growth % + FCF Margin % · Annual</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="r40Chart"></canvas></div>
+      <div class="insight-strip green-accent">
+        <strong>Approaching the 40% threshold.</strong> FY2025 scores 38.2% (19.2% growth + 19.0% FCF margin). FY2022 was a false positive at 35% driven by high growth masking negative FCF. The current trajectory — growth moderating, FCF expanding — is the more durable path to crossing 40%. Base case FY2026E: ~35%; Bull case: 41.5%.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">LTV:CAC by Segment</div>
+      <div class="panel-subtitle">FY2025A · SMB vs Upmarket</div>
+      <div class="metric-compare" style="margin-top:16px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600">LTV:CAC RATIO</div>
+          <div class="metric-compare-row">
+            <div class="metric-compare-label">SMB (&lt;$5K MRR)</div>
+            <div class="metric-compare-bars">
+              <div class="mc-bar-row">
+                <div class="mc-bar-tag">LTV:CAC</div>
+                <div class="mc-bar-track"><div class="mc-bar-fill" style="width:60%;background:var(--blue)"></div></div>
+                <div class="mc-bar-val" style="color:var(--blue)">4.87x</div>
+              </div>
+            </div>
+          </div>
+          <div class="metric-compare-row" style="margin-top:10px">
+            <div class="metric-compare-label">Upmarket (&gt;$5K MRR)</div>
+            <div class="metric-compare-bars">
+              <div class="mc-bar-row">
+                <div class="mc-bar-tag">LTV:CAC</div>
+                <div class="mc-bar-track"><div class="mc-bar-fill" style="width:76%;background:var(--orange)"></div></div>
+                <div class="mc-bar-val" style="color:var(--orange)">6.15x</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600">CAC PAYBACK (MONTHS)</div>
+          <div class="metric-compare-row">
+            <div class="metric-compare-label">SMB</div>
+            <div class="metric-compare-bars">
+              <div class="mc-bar-row">
+                <div class="mc-bar-tag">Payback</div>
+                <div class="mc-bar-track"><div class="mc-bar-fill" style="width:40%;background:var(--blue)"></div></div>
+                <div class="mc-bar-val" style="color:var(--blue)">19.7mo</div>
+              </div>
+            </div>
+          </div>
+          <div class="metric-compare-row" style="margin-top:10px">
+            <div class="metric-compare-label">Upmarket</div>
+            <div class="metric-compare-bars">
+              <div class="mc-bar-row">
+                <div class="mc-bar-tag">Payback</div>
+                <div class="mc-bar-track"><div class="mc-bar-fill" style="width:72%;background:var(--orange)"></div></div>
+                <div class="mc-bar-val" style="color:var(--orange)">35.5mo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="insight-strip blue-accent" style="margin-top:20px">
+        <strong>Segmentation unlocks the story:</strong> Blended LTV:CAC of 2.36x understates the business because upmarket (6.15x) is growing fast and SMB (4.87x) is efficient via PLG. The blended metric dilutes due to field sales CAC pulling the average down.
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Efficiency Metrics Summary</div>
+      <div class="panel-subtitle">FY2023A–FY2025A progression</div>
+      <table class="fin-table" style="margin-top:8px">
+        <thead><tr><th>Metric</th><th>FY23A</th><th>FY24A</th><th>FY25A</th></tr></thead>
+        <tbody>
+          <tr class="section-row"><td colspan="4">Growth Efficiency</td></tr>
+          <tr><td>Blended Magic Number</td><td>0.40x</td><td>0.37x</td><td>0.36x</td></tr>
+          <tr><td class="td-green">PLG-Adj Magic Number</td><td class="td-green">1.33x</td><td class="td-green">1.22x</td><td class="td-green">1.19x</td></tr>
+          <tr><td>LTV:CAC (Blended)</td><td>2.66x</td><td>2.47x</td><td>2.36x</td></tr>
+          <tr><td>CAC Payback (mos)</td><td>34.6</td><td>34.7</td><td>40.7</td></tr>
+          <tr class="section-row"><td colspan="4">SaaS Health</td></tr>
+          <tr><td>Dollar NRR</td><td>103.9%</td><td>102.0%</td><td class="td-green">104.5%</td></tr>
+          <tr><td>Gross Retention (est)</td><td>87.0%</td><td>86.0%</td><td class="td-green">87.5%</td></tr>
+          <tr><td>ASRPC Growth</td><td class="td-green">+1.7%</td><td class="td-red">−0.2%</td><td class="td-green">+3.3%</td></tr>
+          <tr class="section-row"><td colspan="4">Profitability</td></tr>
+          <tr><td>Rule of 40</td><td>38.7%</td><td>39.6%</td><td>38.2%</td></tr>
+          <tr><td>Burn Multiple</td><td>−0.68x</td><td>−1.09x</td><td class="td-green">−1.20x</td></tr>
+          <tr><td>FCF Margin</td><td>13.5%</td><td>18.6%</td><td class="td-green">19.0%</td></tr>
+          <tr class="section-row"><td colspan="4">Scale</td></tr>
+          <tr><td>Rev/Employee ($k)</td><td>$283</td><td>$319</td><td class="td-green">$353</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 4 — SCENARIOS
+══════════════════════════════════════════ -->
+<div id="tab-scenarios" class="tab-panel">
+
+  <div class="section-label">FY2026E Scenario Analysis</div>
+
+  <div class="scenario-toggle">
+    <button class="scenario-btn bear" onclick="setScenario('bear', this)">Bear</button>
+    <button class="scenario-btn base active" onclick="setScenario('base', this)">Base</button>
+    <button class="scenario-btn bull" onclick="setScenario('bull', this)">Bull</button>
+  </div>
+
+  <div class="scenario-metric-grid" id="scenarioCards">
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Revenue FY2026E</div>
+      <div class="scenario-metric-val" id="sc-rev">$3,695M</div>
+      <div class="scenario-metric-note" id="sc-rev-note">+18% YoY · guided midpoint</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Non-GAAP Op Income</div>
+      <div class="scenario-metric-val" id="sc-opinc">$739M</div>
+      <div class="scenario-metric-note" id="sc-opinc-note">20.0% margin · guided</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Non-GAAP FCF</div>
+      <div class="scenario-metric-val" id="sc-fcf">$643M</div>
+      <div class="scenario-metric-note" id="sc-fcf-note">17.4% FCF margin</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Implied EV</div>
+      <div class="scenario-metric-val" id="sc-ev">$37B</div>
+      <div class="scenario-metric-note" id="sc-ev-note">10.0x NTM Revenue</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">NRR</div>
+      <div class="scenario-metric-val" id="sc-nrr">~104.5%</div>
+      <div class="scenario-metric-note" id="sc-nrr-note">Seat expansion continues</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Net New Customers</div>
+      <div class="scenario-metric-val" id="sc-custs">40,000</div>
+      <div class="scenario-metric-note" id="sc-custs-note">~9–10K/qtr guided</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">ASRPC Growth</div>
+      <div class="scenario-metric-val" id="sc-asrpc">+4.0%</div>
+      <div class="scenario-metric-note" id="sc-asrpc-note">Seat model + upmarket mix</div>
+    </div>
+    <div class="scenario-metric">
+      <div class="scenario-metric-label">Rule of 40</div>
+      <div class="scenario-metric-val" id="sc-r40">~35.4%</div>
+      <div class="scenario-metric-note" id="sc-r40-note">Approaching threshold</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-20">
+    <div class="panel">
+      <div class="panel-title">Scenario Revenue &amp; Margin Bridge</div>
+      <div class="panel-subtitle">Bear / Base / Bull FY2026E</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="scenRevChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Implied Valuation by Scenario</div>
+      <div class="panel-subtitle">EV/NTM Revenue multiple · $B enterprise value</div>
+      <div class="chart-wrap chart-wrap-tall"><canvas id="scenValChart"></canvas></div>
+      <div class="insight-strip amber-accent" style="margin-top:14px">
+        <strong>Bear $26.8B (7.5x):</strong> SMB macro drag, AI monetization delayed, S&amp;M investment step-up. &nbsp;<strong>Base $37.0B (10.0x):</strong> Guided numbers achievable, seat model NRR recovery intact. &nbsp;<strong>Bull $51.6B (13.5x):</strong> Breeze AI agents inflect, NRR crosses 108%, multiple re-rates to Salesforce-tier.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Key Risks</div>
+      <div class="panel-subtitle">Watch factors for bear scenario</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--red)"><strong>AI monetization:</strong> Breeze agents early-stage; uncertain attach rate and pricing power in FY2026. 8K activations FY2025 vs target 50K+.</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--red)"><strong>Upmarket execution:</strong> Moving from SMB → mid-market lengthens sales cycles. Risk of pipeline miss in ramp quarters.</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--red)"><strong>SMB macro sensitivity:</strong> If US enters recession, SMB logo churn ticks from 12.5% → 15%; ~$150M ARR at risk.</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--amber)"><strong>FX headwind:</strong> 40%+ international revenue; stronger USD = 100–200bps reported vs constant-currency spread.</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Key Catalysts</div>
+      <div class="panel-subtitle">Watch factors for bull scenario</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--green)"><strong>Breeze AI monetization:</strong> 8K activations FY2025 → 50K+ in FY2026; outcome-based pricing could add $200–400M incremental ARR with near-zero marginal S&amp;M.</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--green)"><strong>Upmarket momentum:</strong> Deals &gt;$10K MRR +41% in FY2025; +$5K MRR deals +33%. If this sustains, ASRPC inflects to +6% vs +3.3% in FY2025.</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--green)"><strong>Rule of 40 crossover:</strong> Bull case crosses 40% — triggers institutional re-rating toward Salesforce/ServiceNow premium (13–15x NTM).</div>
+        <div class="insight-strip" style="margin-top:0;border-left-color:var(--blue)"><strong>$1B buyback:</strong> 24-month program authorized Feb 2026; signals confidence + reduces float. ~$300M est. deployed in FY2026.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── DISCLAIMER ── -->
+<div class="disclaimer">
+  <strong>Disclaimer:</strong> All financial data sourced from publicly available SEC filings (10-K FY2024) and HubSpot Q4/FY2025 Earnings Press Release (Feb 11, 2026). NRR, segment splits, cohort components, and operational metrics labeled as estimates are modeled assumptions based on disclosed data — HubSpot does not disclose ARR, segment-level P&amp;L, or cohort waterfall components. This dashboard is a portfolio project for educational and analytical demonstration purposes only. Not affiliated with HubSpot Inc. Not investment advice.
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ── THEME ──
+const C = {
+  bg:     '#0D1B2A',
+  panel:  '#1A2F45',
+  border: '#1F3A52',
+  orange: '#FF5C35',
+  green:  '#7EC8A4',
+  blue:   '#4A9ECD',
+  amber:  '#FFB347',
+  red:    '#E05C5C',
+  text:   '#F0F4F8',
+  muted:  '#8BA5C0',
+  dim:    '#4A6580',
+};
+
+const YEARS = ['FY2021A','FY2022A','FY2023A','FY2024A','FY2025A'];
+
+Chart.defaults.color = C.muted;
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+
+function gridOpts(xGridHide) {
+  return {
+    x: {
+      border: { display: false },
+      grid:   { display: !xGridHide, color: C.border },
+      ticks:  { color: C.muted }
+    },
+    y: {
+      border: { display: false },
+      grid:   { color: C.border },
+      ticks:  { color: C.muted }
+    }
+  };
+}
+
+// ── TAB SWITCHING ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── CHART 1: Revenue + Gross Margin ──
+(function() {
+  const ctx = document.getElementById('revChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: YEARS,
+      datasets: [
+        {
+          label: 'Subscription Rev ($M)',
+          data: [1178, 1696, 2123, 2570, 3064],
+          backgroundColor: C.blue + 'CC',
+          borderColor: C.blue,
+          borderWidth: 1,
+          borderRadius: 3,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Prof Services ($M)',
+          data: [153, 37, 47, 58, 67],
+          backgroundColor: C.dim + 'AA',
+          borderColor: C.dim,
+          borderWidth: 1,
+          borderRadius: 3,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Gross Margin %',
+          data: [76.2, 83.7, 84.4, 85.0, 83.8],
+          type: 'line',
+          borderColor: C.green,
+          backgroundColor: C.green + '22',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: C.green,
+          tension: 0.3,
+          yAxisID: 'y2',
+          fill: false,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 16 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: {
+            label: ctx => {
+              if(ctx.datasetIndex < 2) return ` $${ctx.parsed.y.toLocaleString()}M`;
+              return ` ${ctx.parsed.y.toFixed(1)}%`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted}, stacked: true },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`$${v.toLocaleString()}M`}, stacked: true },
+        y2: {
+          position: 'right',
+          border:{display:false},
+          grid:{display:false},
+          ticks:{ color: C.green, callback: v => `${v}%` },
+          min: 70, max: 95
+        }
+      }
+    }
+  });
+})();
+
+// ── CHART 2: Margin trend ──
+(function() {
+  const ctx = document.getElementById('marginChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: YEARS,
+      datasets: [
+        {
+          label: 'Non-GAAP Op Margin',
+          data: [3.5, 8.8, 15.5, 17.5, 18.6],
+          borderColor: C.orange,
+          backgroundColor: C.orange + '22',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: C.orange,
+          tension: 0.3,
+          fill: true,
+        },
+        {
+          label: 'FCF Margin',
+          data: [0.8, 1.9, 13.5, 18.6, 19.0],
+          borderColor: C.green,
+          backgroundColor: C.green + '11',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: C.green,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: 'GAAP Op Margin',
+          data: [-3.4, 8.1, -9.3, -2.6, 0.2],
+          borderColor: C.dim,
+          borderWidth: 1.5,
+          borderDash: [4, 3],
+          pointRadius: 3,
+          pointBackgroundColor: C.dim,
+          tension: 0.3,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 14 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v}%`} }
+      }
+    }
+  });
+})();
+
+// ── CHART 3: Revenue Growth Rate ──
+(function() {
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['FY2022A','FY2023A','FY2024A','FY2025A','FY2026E'],
+      datasets: [{
+        label: 'YoY Revenue Growth',
+        data: [33.2, 25.2, 21.1, 19.2, 18.4],
+        backgroundColor: [C.blue+'BB', C.blue+'BB', C.blue+'BB', C.blue+'BB', C.amber+'BB'],
+        borderColor:     [C.blue, C.blue, C.blue, C.blue, C.amber],
+        borderWidth: 1,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted, font:{size:10}} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v}%`}, min:15, max:38 }
+      }
+    }
+  });
+})();
+
+// ── CHART 4: Customers + ASRPC ──
+(function() {
+  const ctx = document.getElementById('custChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: YEARS,
+      datasets: [
+        {
+          label: 'Customers (000s)',
+          data: [135.8, 167.4, 205.1, 247.9, 288.7],
+          backgroundColor: C.blue + 'AA',
+          borderRadius: 3,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'ASRPC ($)',
+          data: [9978, 11148, 11332, 11312, 11683],
+          type: 'line',
+          borderColor: C.orange,
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: C.orange,
+          tension: 0.2,
+          yAxisID: 'y2',
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 12 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 0
+              ? ` ${ctx.parsed.y.toFixed(1)}K customers`
+              : ` $${ctx.parsed.y.toLocaleString()} ASRPC`
+          }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v}K`} },
+        y2: {
+          position: 'right',
+          border:{display:false}, grid:{display:false},
+          ticks:{color:C.orange, callback:v=>`$${(v/1000).toFixed(1)}K`},
+          min: 8000, max: 14000
+        }
+      }
+    }
+  });
+})();
+
+// ── CHART 5: ARR Waterfall (Tab 2) ──
+(function() {
+  const ctx = document.getElementById('waterfallChart').getContext('2d');
+  const labels = YEARS;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Starting ARR',
+          data: [990, 1355, 1866, 2324, 2805],
+          backgroundColor: C.blue + 'AA',
+          borderColor: C.blue,
+          borderWidth: 1,
+          borderRadius: 3,
+          stack: 'stack',
+        },
+        {
+          label: 'Logo Churn ARR',
+          data: [-85, -92, -131, -207, -168],
+          backgroundColor: C.red + 'AA',
+          borderColor: C.red,
+          borderWidth: 1,
+          borderRadius: 3,
+          stack: 'stack',
+        },
+        {
+          label: 'Net Expansion ARR',
+          data: [0, 212, 189, 231, 277],
+          backgroundColor: C.green + 'AA',
+          borderColor: C.green,
+          borderWidth: 1,
+          borderRadius: 3,
+          stack: 'stack',
+        },
+        {
+          label: 'New Logo ARR',
+          data: [478, 277, 242, 452, 419],
+          backgroundColor: C.orange + 'AA',
+          borderColor: C.orange,
+          borderWidth: 1,
+          borderRadius: 3,
+          stack: 'stack',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 16 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(0)}M` }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted}, stacked: true },
+        y: {
+          border:{display:false}, grid:{color:C.border},
+          ticks:{color:C.muted, callback:v=>`$${v.toLocaleString()}M`},
+          stacked: true
+        }
+      }
+    }
+  });
+})();
+
+// ── CHART 6: NRR ──
+(function() {
+  const ctx = document.getElementById('nrrChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: YEARS,
+      datasets: [
+        {
+          label: 'Disclosed NRR',
+          data: [null, 110.0, 103.9, 102.0, 104.5],
+          borderColor: C.green,
+          backgroundColor: C.green + '22',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: ctx => {
+            const v = [null,110,103.9,102,104.5];
+            return v[ctx.dataIndex] >= 105 ? C.green : (v[ctx.dataIndex] < 103 ? C.red : C.amber);
+          },
+          tension: 0.3,
+          fill: true,
+        },
+        {
+          label: '100% baseline',
+          data: [100,100,100,100,100],
+          borderColor: C.dim,
+          borderWidth: 1,
+          borderDash: [4,4],
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ctx.datasetIndex === 0 ? ` NRR: ${ctx.parsed.y?.toFixed(1)}%` : null }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v}%`}, min: 95, max: 115 }
+      }
+    }
+  });
+})();
+
+// ── CHART 7: PLG Funnel Doughnut ──
+(function() {
+  const ctx = document.getElementById('funnelChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['PLG / Self-Serve (~70%)', 'Field Sales (~20%)', 'Solution Partners (~10%)'],
+      datasets: [{
+        data: [70, 20, 10],
+        backgroundColor: [C.blue+'CC', C.orange+'CC', C.green+'CC'],
+        borderColor: [C.blue, C.orange, C.green],
+        borderWidth: 2,
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: C.muted, boxWidth: 12, padding: 14, font: { size: 11 } }
+        },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: {
+            label: ctx => {
+              const asrpc = [5200, 24000, 9000];
+              return [` ${ctx.label}`, ` Avg ASRPC: $${asrpc[ctx.dataIndex].toLocaleString()}`];
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+// ── CHART 8: Magic Number Blended vs PLG-Adj ──
+(function() {
+  const ctx = document.getElementById('magicChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['FY2022A','FY2023A','FY2024A','FY2025A'],
+      datasets: [
+        {
+          label: 'Blended Magic Number',
+          data: [0.685, 0.400, 0.366, 0.358],
+          backgroundColor: C.amber + 'AA',
+          borderColor: C.amber,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'PLG-Adjusted Magic Number',
+          data: [2.284, 1.333, 1.220, 1.195],
+          backgroundColor: C.green + 'AA',
+          borderColor: C.green,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: '0.75x Healthy Threshold',
+          data: [0.75, 0.75, 0.75, 0.75],
+          type: 'line',
+          borderColor: C.orange,
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 14 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ctx.datasetIndex < 2 ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}x` : ` Threshold: ${ctx.parsed.y}x` }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v.toFixed(1)}x`} }
+      }
+    }
+  });
+})();
+
+// ── CHART 9: Rule of 40 ──
+(function() {
+  const ctx = document.getElementById('r40Chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['FY2022A','FY2023A','FY2024A','FY2025A','FY2026E'],
+      datasets: [
+        {
+          label: 'Revenue Growth %',
+          data: [33.2, 25.2, 21.1, 19.2, 18.4],
+          backgroundColor: C.blue + 'BB',
+          borderRadius: 3,
+          stack: 'stack',
+        },
+        {
+          label: 'FCF Margin %',
+          data: [1.9, 13.5, 18.6, 19.0, 17.4],
+          backgroundColor: C.green + 'BB',
+          borderRadius: 3,
+          stack: 'stack',
+        },
+        {
+          label: '40% threshold',
+          data: [40, 40, 40, 40, 40],
+          type: 'line',
+          borderColor: C.orange,
+          borderWidth: 1.5,
+          borderDash: [5,4],
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 14 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: {
+            label: ctx => ctx.datasetIndex < 2 ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` : ` Threshold: 40%`,
+            afterBody: ctx => {
+              if(ctx[0]) {
+                const totals = [35.1, 38.7, 39.6, 38.2, 35.8];
+                return [`Total: ${totals[ctx[0].dataIndex]}%`];
+              }
+            }
+          }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted}, stacked:true },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`${v}%`}, stacked:true, max:55 }
+      }
+    }
+  });
+})();
+
+// ── CHART 10: Scenario Revenue ──
+(function() {
+  const ctx = document.getElementById('scenRevChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Bear', 'Base', 'Bull'],
+      datasets: [
+        {
+          label: 'Revenue FY2026E ($M)',
+          data: [3569, 3695, 3820],
+          backgroundColor: [C.red+'BB', C.blue+'BB', C.green+'BB'],
+          borderColor:     [C.red, C.blue, C.green],
+          borderWidth: 2,
+          borderRadius: 6,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Op Margin %',
+          data: [18.5, 20.0, 21.5],
+          type: 'line',
+          borderColor: C.orange,
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          pointRadius: 6,
+          pointBackgroundColor: C.orange,
+          yAxisID: 'y2',
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: C.muted, boxWidth: 12, padding: 14 } },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 0 ? ` Revenue: $${ctx.parsed.y.toLocaleString()}M` : ` Op Margin: ${ctx.parsed.y}%`
+          }
+        }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`$${v.toLocaleString()}M`}, min:3400 },
+        y2: { position:'right', border:{display:false}, grid:{display:false}, ticks:{color:C.orange, callback:v=>`${v}%`}, min:17, max:23 }
+      }
+    }
+  });
+})();
+
+// ── CHART 11: Scenario Valuation ──
+(function() {
+  const ctx = document.getElementById('scenValChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Bear (7.5x)', 'Base (10x)', 'Bull (13.5x)'],
+      datasets: [{
+        label: 'Implied EV ($B)',
+        data: [26.8, 37.0, 51.6],
+        backgroundColor: [C.red+'CC', C.blue+'CC', C.green+'CC'],
+        borderColor:     [C.red, C.blue, C.green],
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: C.panel, borderColor: C.border, borderWidth: 1,
+          titleColor: C.text, bodyColor: C.muted,
+          callbacks: { label: ctx => ` Implied EV: $${ctx.parsed.y}B` }
+        },
+        datalabels: { display: false }
+      },
+      scales: {
+        x: { border:{display:false}, grid:{display:false}, ticks:{color:C.muted} },
+        y: { border:{display:false}, grid:{color:C.border}, ticks:{color:C.muted, callback:v=>`$${v}B`}, min:0, max:60 }
+      }
+    }
+  });
+})();
+
+// ── SCENARIO TOGGLE ──
+const scenData = {
+  bear: {
+    rev: '$3,569M', revNote: '+14% YoY · SMB macro drag',
+    opinc: '$661M', opincNote: '18.5% margin · investment step-up',
+    fcf: '$553M', fcfNote: '15.5% FCF margin',
+    ev: '$26.8B', evNote: '7.5x NTM Revenue',
+    nrr: '~100%', nrrNote: 'Upmarket churn ticks up',
+    custs: '32,000', custsNote: '~8K/qtr · SMB drag',
+    asrpc: '+2.5%', asrpcNote: 'Seat dilutive pricing',
+    r40: '~29.5%', r40Note: 'Below threshold · growth decel',
+  },
+  base: {
+    rev: '$3,695M', revNote: '+18% YoY · guided midpoint',
+    opinc: '$739M', opincNote: '20.0% margin · guided',
+    fcf: '$643M', fcfNote: '17.4% FCF margin',
+    ev: '$37.0B', evNote: '10.0x NTM Revenue',
+    nrr: '~104.5%', nrrNote: 'Seat expansion continues',
+    custs: '40,000', custsNote: '~9–10K/qtr guided',
+    asrpc: '+4.0%', asrpcNote: 'Seat model + upmarket mix',
+    r40: '~35.4%', r40Note: 'Approaching threshold',
+  },
+  bull: {
+    rev: '$3,820M', revNote: '+22% YoY · AI agent attach',
+    opinc: '$821M', opincNote: '21.5% margin · opex leverage',
+    fcf: '$745M', fcfNote: '19.5% FCF margin',
+    ev: '$51.6B', evNote: '13.5x NTM Revenue · re-rating',
+    nrr: '~108%', nrrNote: 'Breeze AI dual expansion',
+    custs: '50,000', custsNote: 'SMB + mid-market reaccel',
+    asrpc: '+6.0%', asrpcNote: 'AI agent premium pricing',
+    r40: '~41.5%', r40Note: 'Crosses 40% → re-rating catalyst',
+  }
+};
+
+function setScenario(scen, btn) {
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = scenData[scen];
+  document.getElementById('sc-rev').textContent = d.rev;
+  document.getElementById('sc-rev-note').textContent = d.revNote;
+  document.getElementById('sc-opinc').textContent = d.opinc;
+  document.getElementById('sc-opinc-note').textContent = d.opincNote;
+  document.getElementById('sc-fcf').textContent = d.fcf;
+  document.getElementById('sc-fcf-note').textContent = d.fcfNote;
+  document.getElementById('sc-ev').textContent = d.ev;
+  document.getElementById('sc-ev-note').textContent = d.evNote;
+  document.getElementById('sc-nrr').textContent = d.nrr;
+  document.getElementById('sc-nrr-note').textContent = d.nrrNote;
+  document.getElementById('sc-custs').textContent = d.custs;
+  document.getElementById('sc-custs-note').textContent = d.custsNote;
+  document.getElementById('sc-asrpc').textContent = d.asrpc;
+  document.getElementById('sc-asrpc-note').textContent = d.asrpcNote;
+  document.getElementById('sc-r40').textContent = d.r40;
+  document.getElementById('sc-r40-note').textContent = d.r40Note;
+
+  // Update card border colors
+  const cards = document.querySelectorAll('.scenario-metric');
+  const colors = { bear: '#E05C5C', base: '#4A9ECD', bull: '#7EC8A4' };
+  cards.forEach(c => {
+    c.style.borderTopColor = colors[scen];
+    c.style.borderTopWidth = '2px';
+    c.style.borderTopStyle = 'solid';
+  });
+}
+
+// init
+setScenario('base', document.querySelector('.scenario-btn.base'));
+</script>
+</body>
+</html>
