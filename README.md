@@ -1,6 +1,6 @@
 # FP&A & Strategic Finance Portfolio
 
-**Live portfolio:** [simbazone.github.io/fpa-portfolio](https://simbazone.github.io/fpa-portfolio)
+**Live portfolio:** [felicianae.github.io/fpa-portfolio](https://felicianae.github.io/fpa-portfolio)
 
 Three end-to-end finance systems built independently to demonstrate FP&A modeling, 
 SaaS unit economics, and equity research — each with an Excel model and an 
@@ -25,7 +25,7 @@ business unit representing ~75% of consolidated revenue.
 ---
 
 ### 02 · HubSpot (HUBS) — SaaS Strategic Finance System
-**[Launch Dashboard →](https://simbazone.github.io/fpa-portfolio/hubs_dashboard.html)**
+**[Launch Dashboard →](https://felicianae.github.io/fpa-portfolio/hubs_dashboard.html)**
 
 Full SaaS finance stack built on publicly available 10-K and earnings data 
 (FY2021A–FY2025A, FY2026E–FY2027E forecast).
@@ -38,7 +38,7 @@ Full SaaS finance stack built on publicly available 10-K and earnings data
 ---
 
 ### 03 · Cloudflare (NET) — TMT Equity Research
-**[Launch Dashboard →](https://simbazone.github.io/fpa-portfolio/Cloudflare_Dashboard.html)**
+**[Launch Dashboard →](https://felicianae.github.io/fpa-portfolio/Cloudflare_Dashboard.html)**
 
 Institutional-grade initiating coverage report. BUY · $200 price target · June 2026.
 
