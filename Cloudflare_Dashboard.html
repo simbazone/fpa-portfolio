@@ -289,6 +289,13 @@ section{padding:64px 0 32px}
   margin-top:12px;padding-top:12px;border-top:1px solid var(--border);
 }
 .ff-chart-wrap{height:300px;position:relative}
+
+@media(max-width:767px){
+  .about-pillars{grid-template-columns:1fr!important}
+}
+@media(max-width:1199px){
+  .about-pillars{grid-template-columns:1fr 1fr!important}
+}
 .ff-note{font-size:11px;color:var(--text-secondary);margin-top:8px;font-style:italic}
 .val-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
 @media(max-width:1199px){.val-methods{grid-template-columns:1fr}}
@@ -383,6 +390,111 @@ footer{
 <section id="sec-overview">
   <div class="page-wrap">
     <h2 class="section-title">Company Overview</h2>
+
+    <!-- ── About this model ── -->
+    <div style="
+      background: linear-gradient(135deg, #1a1a26 0%, #12121a 100%);
+      border: 1px solid #3a3a5a;
+      border-left: 4px solid #f6821f;
+      border-radius: 12px;
+      padding: 22px 26px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    ">
+      <!-- faint watermark -->
+      <div style="
+        position:absolute; top:-10px; right:16px;
+        font-size:80px; font-weight:900; color:#f6821f;
+        opacity:0.04; line-height:1; pointer-events:none;
+        font-family: -apple-system, sans-serif;
+      ">NET</div>
+
+      <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+        <!-- left: label pill -->
+        <div style="flex-shrink:0; margin-top:2px;">
+          <span style="
+            background:#f6821f22; color:#f6821f;
+            font-size:10px; font-weight:700;
+            letter-spacing:0.08em; text-transform:uppercase;
+            padding:4px 10px; border-radius:20px;
+            border:1px solid #f6821f44;
+            white-space:nowrap;
+          ">About This Model</span>
+        </div>
+        <!-- right: content -->
+        <div style="flex:1; min-width:260px;">
+          <div style="
+            font-size:15px; font-weight:700;
+            color:#f0f0f8; margin-bottom:8px; line-height:1.3;
+          ">Cloudflare (NET) — TMT Equity Research &amp; Valuation Model</div>
+          <div style="
+            font-size:12px; color:#c0c0d8; line-height:1.75;
+          ">
+            This is a full-stack strategic finance and equity research project built on primary SEC filings,
+            earnings call transcripts, and Investor Day materials. It covers everything a TMT equity research
+            analyst or FP&amp;A team would produce when initiating coverage on a high-growth SaaS company.
+          </div>
+          <!-- three pillars -->
+          <div style="
+            display:grid; grid-template-columns:repeat(3,1fr);
+            gap:12px; margin-top:16px;
+          " class="about-pillars">
+            <div style="
+              background:#1a1a2e; border:1px solid #2a2a3e;
+              border-radius:8px; padding:12px 14px;
+            ">
+              <div style="font-size:16px; margin-bottom:4px;">📊</div>
+              <div style="font-size:11px; font-weight:700; color:#f0f0f8; margin-bottom:4px;">Financial Model</div>
+              <div style="font-size:10px; color:#9999bb; line-height:1.5;">
+                Three-statement model (IS/BS/CF), FY2022–FY2028E. Bear/Base/Bull scenario toggle.
+                GAAP + Non-GAAP reconciliation. FCF waterfall.
+              </div>
+            </div>
+            <div style="
+              background:#1a1a2e; border:1px solid #2a2a3e;
+              border-radius:8px; padding:12px 14px;
+            ">
+              <div style="font-size:16px; margin-bottom:4px;">📈</div>
+              <div style="font-size:11px; font-weight:700; color:#f0f0f8; margin-bottom:4px;">SaaS Metrics</div>
+              <div style="font-size:10px; color:#9999bb; line-height:1.5;">
+                NRR history &amp; forward model. ARR engine. Large customer cohort.
+                Rule of 40 trajectory. RPO &amp; billings proxy. Geo revenue breakdown.
+              </div>
+            </div>
+            <div style="
+              background:#1a1a2e; border:1px solid #2a2a3e;
+              border-radius:8px; padding:12px 14px;
+            ">
+              <div style="font-size:16px; margin-bottom:4px;">🎯</div>
+              <div style="font-size:11px; font-weight:700; color:#f0f0f8; margin-bottom:4px;">Valuation &amp; Research</div>
+              <div style="font-size:10px; color:#9999bb; line-height:1.5;">
+                DCF (3 scenarios), trading comps, M&amp;A precedent analysis, football field.
+                Full initiating coverage research note. BUY | $200 PT.
+              </div>
+            </div>
+          </div>
+          <!-- source strip -->
+          <div style="
+            margin-top:14px; padding-top:12px;
+            border-top:1px solid #2a2a3e;
+            font-size:10px; color:#55556a;
+            display:flex; gap:16px; flex-wrap:wrap; align-items:center;
+          ">
+            <span style="color:#9999bb; font-weight:600;">Data Sources:</span>
+            <span>10-K FY2025 (Feb 26 2026)</span>
+            <span>·</span>
+            <span>10-Q Q1 2026 (May 8 2026)</span>
+            <span>·</span>
+            <span>10-K/A Amendment (Apr 29 2026)</span>
+            <span>·</span>
+            <span>Q1 2026 Earnings Call (May 7 2026)</span>
+            <span>·</span>
+            <span>Investor Day Deck (June 9 2026)</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="kpi-grid">
       <div class="kpi-card">
@@ -640,7 +752,60 @@ footer{
     <div class="card chart-full">
       <div class="card-title">Implied Share Price by Valuation Method</div>
       <div class="ff-chart-wrap"><canvas id="chart-ff"></canvas></div>
-      <p class="ff-note">Football field shows Bear/Base/Bull implied price per method. Reference: $197.15 (Dec 31 2025 closing). DCF uses EV/Revenue exit multiples (sell-side standard for high-growth SaaS). FCF comps less relevant pre-GAAP profitability.</p>
+      <div style="margin-top:12px;">
+        <!-- main note row -->
+        <p class="ff-note" style="margin-bottom:10px;">
+          Football field shows Bear/Base/Bull implied price per method.
+          Reference: $197.15 (Dec 31 2025 closing). DCF uses EV/Revenue exit multiples
+          (sell-side standard for high-growth SaaS). EV/FCF comps less relevant
+          pre-GAAP profitability.
+        </p>
+        <!-- M&A explanation callout -->
+        <div style="
+          background:#1a1a26;
+          border:1px solid #2a2a3e;
+          border-left:3px solid #eab308;
+          border-radius:8px;
+          padding:14px 16px;
+          font-size:11px;
+          line-height:1.7;
+          color:#9999bb;
+        ">
+          <span style="
+            color:#eab308; font-weight:700;
+            font-size:10px; text-transform:uppercase;
+            letter-spacing:0.06em; display:block; margin-bottom:6px;
+          ">⚠ Why is the M&amp;A range lower than DCF and trading comps?</span>
+          <span style="color:#c0c0d8;">
+            Three methods measure three different things.
+            <strong style="color:#f0f0f8;">DCF</strong> ($72–$275) captures intrinsic value based on future cash flows —
+            what the business is fundamentally <em>worth</em>.
+            <strong style="color:#f0f0f8;">Trading comps</strong> ($44–$125) reflect what the market
+            currently <em>pays</em> for comparable public companies.
+            <strong style="color:#f0f0f8;">M&amp;A analysis</strong> ($43–$66) reflects what acquirers have
+            historically <em>paid</em> in actual deals — and precedent transactions use LTM revenue multiples
+            (7–11x) that are structurally lower than where high-growth SaaS companies trade publicly today.
+          </span>
+          <span style="color:#c0c0d8; display:block; margin-top:8px;">
+            The Cloudflare-specific kicker: Matthew Prince and Michelle Zatlyn together control
+            <strong style="color:#f0f0f8;">50.6% of voting power</strong> through Class B shares (10 votes per share vs.
+            1 vote for public Class A). That makes hostile takeover mathematically impossible —
+            a deal only happens if the founders want to sell. This removes the normal control premium
+            dynamic, shrinks the realistic acquirer universe, and structurally compresses the implied
+            takeout premium relative to intrinsic value.
+          </span>
+          <span style="
+            color:#9999bb; display:block; margin-top:10px;
+            padding-top:10px; border-top:1px solid #2a2a3e;
+            font-style:italic; font-size:10px;
+          ">
+            In short: the M&amp;A range is low for two compounding reasons —
+            precedent deal multiples are structurally conservative, and Cloudflare is
+            a structurally non-acquirable asset. That's not a modeling error;
+            it's the correct read of the capital structure.
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="val-methods">
@@ -659,7 +824,13 @@ footer{
       <div class="val-method-card">
         <div class="val-method-icon">🤝</div>
         <div class="val-method-title">M&amp;A Analysis</div>
-        <div class="val-method-body">Dual-class: Prince + Zatlyn = 50.6% voting control<br>Hostile takeover structurally impossible<br>7&ndash;11x LTM Revenue precedent transactions</div>
+        <div class="val-method-body">
+            7&ndash;11x LTM Revenue (precedent transactions) applied to NET LTM revenue<br>
+            Prince &amp; Zatlyn: 50.6% voting control via Class B (10 votes/share)<br>
+            <span style="color:#eab308; font-size:10px;">
+              ↑ See note below football field for why M&amp;A range is structurally lower than DCF/comps
+            </span>
+          </div>
         <div class="val-method-implied">$43 &mdash; $52 &mdash; $66</div>
       </div>
     </div>
