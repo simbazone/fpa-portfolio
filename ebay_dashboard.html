@@ -187,34 +187,42 @@ textarea{width:100%;font-family:'Courier New',monospace;font-size:11px;color:var
       <div class="card">
         <div class="card-title">Net Revenue & GMX Proxy <span>$B · FY2021–Q1 2026A</span></div>
         <div class="chart-wrap">
-          <svg viewBox="0 0 560 185" xmlns="http://www.w3.org/2000/svg">
-            <line x1="50" y1="20" x2="550" y2="20" stroke="#EAECF0" stroke-width="0.5"/>
-            <line x1="50" y1="60" x2="550" y2="60" stroke="#EAECF0" stroke-width="0.5"/>
+          <svg viewBox="0 0 560 225" xmlns="http://www.w3.org/2000/svg">
+            <!-- Scale: y=20→$13B, y=60→$12B, y=100→$11B, y=140→$10B, y=180→$9B · 40px/$1B -->
+            <line x1="50" y1="20"  x2="550" y2="20"  stroke="#EAECF0" stroke-width="0.5"/>
+            <line x1="50" y1="60"  x2="550" y2="60"  stroke="#EAECF0" stroke-width="0.5"/>
             <line x1="50" y1="100" x2="550" y2="100" stroke="#EAECF0" stroke-width="0.5"/>
             <line x1="50" y1="140" x2="550" y2="140" stroke="#EAECF0" stroke-width="0.5"/>
-            <text x="44" y="24" text-anchor="end" font-size="9" fill="#9CA3AF">$12B</text>
-            <text x="44" y="64" text-anchor="end" font-size="9" fill="#9CA3AF">$11B</text>
-            <text x="44" y="104" text-anchor="end" font-size="9" fill="#9CA3AF">$10B</text>
-            <text x="44" y="144" text-anchor="end" font-size="9" fill="#9CA3AF">$9B</text>
-            <rect x="66" y="83" width="50" height="57" fill="#1B2A4A" opacity="0.85" rx="1"/>
-            <rect x="146" y="108" width="50" height="32" fill="#1B2A4A" opacity="0.85" rx="1"/>
-            <rect x="226" y="96" width="50" height="44" fill="#1B2A4A" opacity="0.85" rx="1"/>
-            <rect x="306" y="89" width="50" height="51" fill="#1B2A4A" opacity="0.85" rx="1"/>
-            <rect x="386" y="56" width="50" height="84" fill="#1B2A4A" rx="1"/>
-            <rect x="466" y="49" width="50" height="12" fill="#C8002A" rx="1" opacity="0.75"/>
-            <text x="491" y="45" text-anchor="middle" font-size="8" fill="#C8002A" font-weight="600">Q1A ann.</text>
-            <polyline points="91,115 171,128 251,120 331,115 411,82" fill="none" stroke="#C8002A" stroke-width="1.5" stroke-dasharray="3,2"/>
-            <text x="91" y="79" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.4</text>
-            <text x="171" y="104" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">9.8</text>
-            <text x="251" y="92" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.1</text>
-            <text x="331" y="85" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.3</text>
-            <text x="411" y="52" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">11.1</text>
-            <text x="91" y="172" text-anchor="middle" font-size="9" fill="#6B7280">FY21</text>
-            <text x="171" y="172" text-anchor="middle" font-size="9" fill="#6B7280">FY22</text>
-            <text x="251" y="172" text-anchor="middle" font-size="9" fill="#6B7280">FY23</text>
-            <text x="331" y="172" text-anchor="middle" font-size="9" fill="#6B7280">FY24</text>
-            <text x="411" y="172" text-anchor="middle" font-size="9" fill="#6B7280">FY25</text>
-            <text x="491" y="172" text-anchor="middle" font-size="9" fill="#C8002A">Q1'26</text>
+            <line x1="50" y1="180" x2="550" y2="180" stroke="#EAECF0" stroke-width="0.5"/>
+            <text x="44" y="24"  text-anchor="end" font-size="9" fill="#9CA3AF">$13B</text>
+            <text x="44" y="64"  text-anchor="end" font-size="9" fill="#9CA3AF">$12B</text>
+            <text x="44" y="104" text-anchor="end" font-size="9" fill="#9CA3AF">$11B</text>
+            <text x="44" y="144" text-anchor="end" font-size="9" fill="#9CA3AF">$10B</text>
+            <text x="44" y="184" text-anchor="end" font-size="9" fill="#9CA3AF">$9B</text>
+            <!-- Bars: y=180-(value-9)*40, height=(value-9)*40 -->
+            <rect x="66"  y="123" width="50" height="57"  fill="#1B2A4A" opacity="0.85" rx="1"/>
+            <rect x="146" y="148" width="50" height="32"  fill="#1B2A4A" opacity="0.85" rx="1"/>
+            <rect x="226" y="136" width="50" height="44"  fill="#1B2A4A" opacity="0.85" rx="1"/>
+            <rect x="306" y="129" width="50" height="51"  fill="#1B2A4A" opacity="0.85" rx="1"/>
+            <rect x="386" y="96"  width="50" height="84"  fill="#1B2A4A" rx="1"/>
+            <rect x="466" y="46"  width="50" height="134" fill="#C8002A" rx="1" opacity="0.80"/>
+            <!-- Bar labels -->
+            <text x="91"  y="119" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.4</text>
+            <text x="171" y="144" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">9.8</text>
+            <text x="251" y="132" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.1</text>
+            <text x="331" y="125" text-anchor="middle" font-size="8.5" fill="white" font-weight="600">10.3</text>
+            <text x="411" y="92"  text-anchor="middle" font-size="8.5" fill="white" font-weight="600">11.1</text>
+            <text x="491" y="42"  text-anchor="middle" font-size="8.5" fill="white" font-weight="600">12.4</text>
+            <text x="491" y="32"  text-anchor="middle" font-size="7.5" fill="#C8002A" font-weight="600">Q1A ann.</text>
+            <!-- GMX proxy dotted line (~75% of consolidated) -->
+            <polyline points="91,140 171,158 251,149 331,144 411,121" fill="none" stroke="#C8002A" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <!-- X-axis labels -->
+            <text x="91"  y="210" text-anchor="middle" font-size="9" fill="#6B7280">FY21</text>
+            <text x="171" y="210" text-anchor="middle" font-size="9" fill="#6B7280">FY22</text>
+            <text x="251" y="210" text-anchor="middle" font-size="9" fill="#6B7280">FY23</text>
+            <text x="331" y="210" text-anchor="middle" font-size="9" fill="#6B7280">FY24</text>
+            <text x="411" y="210" text-anchor="middle" font-size="9" fill="#6B7280">FY25</text>
+            <text x="491" y="210" text-anchor="middle" font-size="9" fill="#C8002A">Q1'26</text>
             <rect x="52" y="10" width="10" height="7" fill="#1B2A4A" rx="1"/>
             <text x="65" y="17" font-size="9" fill="#6B7280">eBay Consolidated</text>
             <line x1="158" y1="14" x2="172" y2="14" stroke="#C8002A" stroke-width="1.5" stroke-dasharray="3,2"/>
